@@ -1,5 +1,5 @@
 /*
-    This file is part of the ChipWhisperer Example Targets
+    This file was made using a file of the ChipWhisperer Example Targets
     Copyright (C) 2012-2017 NewAE Technology Inc.
 
     This program is free software: you can redistribute it and/or modify
