@@ -59,6 +59,8 @@ for i in range(num_traces):
     if trace is None:
         continue
     traces.append(trace)
+
+    # simple display to follow the recording
     if i % 1000 == 0 and i > 0:
         print(i)
 
@@ -70,7 +72,8 @@ textk1 = textk1.decode("utf-8")
 textk2 = hexlify(k2)
 textk2 = textk2.decode("utf-8")
 
-OUTPUT_PATH = os.path.expanduser('~') + f"/simula/VIOLETFELONY/sca/traces/{textk1}-{textk2}-end.csv"
+#replace with your output path of choice
+OUTPUT_PATH = f"{textk1}-{textk2}-end.csv"
 
 f = open(OUTPUT_PATH, 'a')
 with f:

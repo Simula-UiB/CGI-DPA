@@ -1,4 +1,4 @@
-<h1 align="center">CryptaPath</h1>
+<h1 align="center">Pincering SKINNY by Exploiting Slow Diffusion: Enhancing Differential Power Analysis with Cluster Graph Inference</h1>
 
 <p align="center">
     <a href="https://github.com/Simula-UiB/CGI-DPA/blob/master/AUTHORS"><img src="https://img.shields.io/badge/authors-SimulaUIB-orange.svg"></a>
