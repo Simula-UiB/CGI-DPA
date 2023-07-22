@@ -1,7 +1,7 @@
 import chipwhisperer as cw
 from chipwhisperer.common.utils.util import hexStrToByteArray
 import csv
-import os
+import os, binascii
 from binascii import hexlify
 
 
@@ -18,22 +18,17 @@ elif PLATFORM == "CW303" or PLATFORM == "CWLITEXMEGA":
 else:
     prog = None
 
+# for this path to work either place this script in the relevant folder of ChipWhisperer project
+# or change the path
+
 fw_path = '../hardware/victims/firmware/simpleserial-SKINNY/simpleserial-skinny-{}.hex'.format(PLATFORM)
 cw.program_target(scope, prog, fw_path)
 
 
-# read from the existing csv for the value of key and plaintext
-# using the filename for tk1 and tk2
-
-INPUT_PATH = os.path.expanduser('~')+"/simula/VIOLETFELONY/sca/traces/4e4508e137815ef1bcbfc22ec93dbd55-b40df81a11aaf1490b5834b2a1d6866a.csv"
+num_traces = 500
 keys = []
 plaintexts = []
-with open(INPUT_PATH) as file:
-    for row in csv.reader(file,delimiter=";"):
-        keys.append(row[0])
-        plaintexts.append(row[1])
 traces = []
-num_traces = 50000
 
 ktp = cw.ktp.Basic()
 
@@ -45,6 +40,7 @@ target.simpleserial_write('2', k2)
 target.simpleserial_wait_ack()
 
 # recording the end of the trace
+# comment out to record the beginning
 target.simpleserial_write('e', b'')
 target.simpleserial_wait_ack()
 
@@ -53,27 +49,39 @@ for i in range(num_traces):
     target.simpleserial_wait_ack()
     target.simpleserial_write('2', k2)
     target.simpleserial_wait_ack()
-    target.simpleserial_write('k', hexStrToByteArray(keys[i]))
+
+    # generate a random key from urandom
+    # writting this key in TK3 forces a recomputation of the
+    # round tweakeys
+    key = binascii.hexlify(os.urandom(16)).decode("utf-8")
+    keys.append(key)
+    target.simpleserial_write('k', hexStrToByteArray(key))
     target.simpleserial_wait_ack()
-    trace = cw.capture_trace(scope, target, hexStrToByteArray(plaintexts[i]))
+
+    # generate a random plaintext from urandom
+    # and record the trace of its encryption
+    plaintext = binascii.hexlify(os.urandom(16)).decode("utf-8")
+    plaintexts.append(plaintext)
+    trace = cw.capture_trace(scope, target, hexStrToByteArray(plaintext))
     if trace is None:
         continue
     traces.append(trace)
 
     # simple display to follow the recording
-    if i % 1000 == 0 and i > 0:
+    if i % 100 == 0 and i > 0:
         print(i)
 
 scope.dis()
 target.dis()
 
-textk1 = hexlify(k1)
-textk1 = textk1.decode("utf-8")
-textk2 = hexlify(k2)
-textk2 = textk2.decode("utf-8")
+strk1 = hexlify(k1).decode("utf-8")
+strk2 = hexlify(k2).decode("utf-8")
 
 #replace with your output path of choice
-OUTPUT_PATH = f"{textk1}-{textk2}-end.csv"
+OUTPUT_PATH = f"{strk1}-{strk2}-end.csv"
+
+# outputs a csv with rows shaped
+# key;plaintext;ciphertext;timestamp_1,timestamp_2,...,timestamp_5000
 
 f = open(OUTPUT_PATH, 'a')
 with f:

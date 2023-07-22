@@ -30,6 +30,7 @@ The rest of the code is licensed under the MIT license.
 ### ChipWhisperer
 
 Under the folder [ChipWhisperer](ChipWhisperer/) are two implementations of SKINNY-128-384 (with a 384-bit tweakey state and 56 rounds) integrated with the ChipWhisperer code. One implementation (LUT) uses lookup tables for the S-Box computation while the other uses a circuit. For more detail on each implementation we refer to Section 5 of our paper.
+Those implementations are aimed at the ChipWhisperer Lite or the ChipWhisperer Kit using the STM32F3 target board.
 
 This folder is not self-sufficient, and each implementation needs to be integrated in the ChipWhisperer project. Specifically, the folders [simpleserial-SKINNY](ChipWhisperer/simpleserial-SKINNY) and [simpleserial-SKINNY-LUT](ChipWhisperer/simpleserial-SKINNY-LUT) should be placed in the folder [chipwhisperer/hardware/victims/firmware/](https://github.com/newaetech/chipwhisperer/tree/develop/hardware/victims/firmware) and used similarly to the other examples (such as [simpleserial-AES](https://github.com/newaetech/chipwhisperer/tree/develop/hardware/victims/firmware/simpleserial-aes) for which the ChipWhisperer project provides [example jupyter notebooks](https://github.com/newaetech/chipwhisperer-jupyter)). 
 
