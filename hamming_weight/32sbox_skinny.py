@@ -3,7 +3,6 @@ import scipy.stats
 import sys
 import os
 from numpy import random as rd
-import csv
 
 np.set_printoptions(formatter={'float': '{: 0.5f}'.format})
 

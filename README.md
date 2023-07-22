@@ -42,7 +42,7 @@ Technical details:
 
 ### Hamming Weight Experiments
 
-Under the folder [hamming_weight](hamming_weight/) are three Python scripts that we used to perform the Hamming Weight simulation experiments (for more information see Section 5 of the paper).
+Under the folder [hamming_weight](hamming_weight/) are three Python scripts that we used to perform the Hamming Weight simulation experiments (for more information see Section 5 of the paper). All scripts rely on the [numpy](https://numpy.org/) and [scipy](https://scipy.org/) packages.
 
 The [16sbox](hamming_weight/16sbox_skinny.py) script exploits exactly one S-Box per key byte; we used a simplification and only computed scores for one S-Box of the first round and one S-Box of the last round (the ones for K1 and K9). We then multiply the resulting success rates to obtain the success rate for the full key. It outputs a final success rate in log2 scale (a success rate of x translates to $1/{2}^{x}\%$ chance of recovering the key).
 
@@ -50,4 +50,15 @@ The [32sbox](hamming_weight/32sbox_skinny.py)  script exploits all S-Boxes that 
 
 The [44sbox](hamming_weight/44sbox_skinny.py)  script uses all 44 S-Boxes and CGI-DPA, as explained in Section 4 of the paper. The cluster graph is hardcoded in the form of edges and nodes with a predefined order of the message transmitted. It outputs a `.csv` file with rows shaped (`key_id;rank;ranks;...;rank;`) where the rank is the position of the true key at a given trace.
 
-All those scripts take as a mandatory command line argument (in this order) `SIGMA` (`float`, $\sigma^2$ the variance of the noise), `N_TRACES` (`int`, number of traces per experiment), `N_EXPERIMENT`(`int`, number of experiments to perform before averaging). Additionally, 44sbox takes two extra optional arguments, `OUTPUT_PATH` (`string`, the output path for the `.csv` file, a default one is given otherwise), `SEED` (`int`, the seed to use for the PRNG, if none provided 4 bytes are taken from `/dev/urandom`). As a disclaimer, the code is not exactly "well written". There is a lot of code duplication that could be improved, but we decided to minimize the changes from the version we used for the submission.
+All those scripts take as a mandatory command line argument (in this order) `SIGMA` (`float`, $\sigma^2$ the variance of the noise), `N_TRACES` (`int`, number of traces per experiment), `N_EXPERIMENT`(`int`, number of experiments to perform before averaging). Additionally, 44sbox takes two extra optional arguments, `OUTPUT_PATH` (`string`, the output path for the `.csv` file, a default one is given otherwise), `SEED` (`int`, the seed to use for the PRNG, if none provided 4 bytes are taken from `/dev/urandom`). Example command line is `python3 44sbox_skinny.py 4.0 100 10`. As a disclaimer, the code is not exactly "well written". There is a lot of code duplication that could be improved, but we decided to minimize the changes from the version we used for the submission.
+
+### Real Traces Experiments
+
+Under the folder [real_traces](real_traces/) are Python scripts that we used to perform the experiment on real traces recorded using the ChipWhisperer implementations mentionned above. All scripts rely on the [numpy](https://numpy.org/) and [scipy](https://scipy.org/) packages, and additionally use the packages [threadpoolctl](https://github.com/joblib/threadpoolctl) and [Skinny](https://github.com/inmcm/skinny_cipher/tree/master). Finally, those scripts use the datasets of traces we collected for the paper. Those traces are available for download in the TCHES artifacts (link pending submission).
+More information about the trace collections and the technical details of the attacks are available in Section 5 of the paper.
+
+The [cpa](real_traces/cpa.py) script uses a correlation based distinguisher. It outputs 3 `.csv` file that contains experimental results (key_id;ranks, like the 44sbox script for the Hamming weight experiments) for 16 S-Boxes, 32 S-Boxes and 44 S-Boxes. Two additional command line arguments are available. `--lut` signals to use the LUT dataset (by default the circuit one is used). `--offset` followed by an `int` $i$ signals to start from trace $i$ instead of trace 0, useful to run multiple concurrent executions. By default the script 10 experiments of 50 traces each for the LUT and 1 experiment of a 100 traces for the circuit dataset. Those values are hardcoded and can be changed at line 668-673 of the script.
+
+The [16_32sbox_profiled](real_traces/16_32sbox_profiled.py) script uses profiling. It builds templates using the profiling dataset first before running the attack after. Additional arguments are `--lut` (same as cpa) and `--single` which signals to only use a single S-Box per key byte (16 S-Boxes total), default being 32 S-Boxes. It also outputs .csv using the same format.
+
+Finally, the [44sbox_profiled](real_traces/44sbox_profiled.py) script also uses profiling and all 44 S-Boxes. Same optional `--lut` argument and `--offset` followed by an `int` and same .csv output format.
